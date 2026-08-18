@@ -1,0 +1,19 @@
+[
+  { "name": "Python", "icon": "images/python-original.svg", "label": "Python" },
+  { "name": "HTML", "icon": "images/html5-original.svg", "label": "HTML" },
+  { "name": "CSS", "icon": "images/css3-original.svg", "label": "CSS" },
+  { "name": "JavaScript", "icon": "images/javascript-original.svg", "label": "JavaScript" },
+  { "name": "TypeScript", "icon": "images/typescript-original.svg", "label": "TypeScript" },
+  { "name": "Java", "icon": "images/java-original.svg", "label": "Java" },
+  { "name": "C#", "icon": "images/csharp-original.svg", "label": "C#" },
+  { "name": "Go", "icon": "images/go-original.svg", "label": "Go" },
+  { "name": "React", "icon": "images/react-original.svg", "label": "React" },
+  { "name": "Node.js", "icon": "images/nodejs-original.svg", "label": "Node.js" },
+  { "name": "Docker", "icon": "images/docker-original.svg", "label": "Docker" },
+  { "name": "Kubernetes", "icon": "images/kubernetes-plain.svg", "label": "Kubernetes" },
+  { "name": "Flask", "icon": "images/flask-original.svg", "label": "Flask" },
+  { "name": "PostgreSQL", "icon": "images/postgresql-original.svg", "label": "PostgreSQL" },
+  { "name": "Vue", "icon": "images/vuejs-original.svg", "label": "Vue" },
+  { "name": "Unity", "icon": "images/unity-original.svg", "label": "Unity" },
+  { "name": "Godot", "icon": "images/godot-original.svg", "label": "Godot" }
+]

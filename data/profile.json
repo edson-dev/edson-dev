@@ -1,0 +1,25 @@
+{
+  "username": "edson-dev",
+  "name": "Edson Coelho dos Santos",
+  "bio": "Software developer. Building things that are fast, simple and well-structured.",
+  "location": "",
+  "website": "https://edson.pages.dev",
+  "links": {
+    "website": "https://edson.pages.dev",
+    "github": "https://github.com/edson-dev",
+    "linkedin": "https://www.linkedin.com/in/edson-c-santos/"
+  },
+  "socials": [
+    {
+      "name": "Website",
+      "url": "https://edson.pages.dev",
+      "fallbackIcon": "🌐"
+    },
+    {
+      "name": "LinkedIn",
+      "url": "https://www.linkedin.com/in/edson-c-santos/",
+      "icon": "images/linkedin-original.svg",
+      "fallbackIcon": "💼"
+    }
+  ]
+}

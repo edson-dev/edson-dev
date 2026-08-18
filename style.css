@@ -1,0 +1,399 @@
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #58a6ff;
+  --green: #3fb950;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.avatar {
+  border-radius: 50%;
+  border: 2px solid var(--border);
+}
+
+.profile-info {
+  flex: 1 1 320px;
+}
+
+.name {
+  margin: 0 0 4px;
+  font-size: 28px;
+}
+
+.bio {
+  margin: 0 0 12px;
+}
+
+.socials {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.socials a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 14px;
+  background: var(--bg);
+}
+
+.socials a:hover {
+  border-color: var(--accent);
+}
+
+.socials img {
+  width: 16px;
+  height: 16px;
+}
+
+.section {
+  margin-top: 32px;
+}
+
+.section-title {
+  font-size: 20px;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 12px;
+}
+
+.tech-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 8px;
+}
+
+.tech-item img {
+  width: 36px;
+  height: 36px;
+}
+
+.tech-item span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.languages {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.lang-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.lang-seg {
+  height: 100%;
+}
+
+.lang-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.lang-list .dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.contributions {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.rpg {
+  overflow-x: auto;
+}
+
+.rpg-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.rpg-hud {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.rpg-hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rpg-hud-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.rpg-hud-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rpg-ctl {
+  margin-left: auto;
+  background: var(--bg);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 64px;
+}
+
+.rpg-ctl:hover {
+  border-color: var(--accent);
+}
+
+.rpg-stage {
+  position: relative;
+}
+
+.rpg-dmg {
+  animation: dmg-float 0.9s ease-out forwards;
+}
+
+@keyframes dmg-float {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+}
+
+.rpg-monster {
+  animation: monster-pop 0.18s ease-out;
+}
+
+@keyframes monster-pop {
+  0% {
+    transform: scale(0.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.rpg-monster-hit circle {
+  filter: brightness(2);
+}
+
+.rpg-monster-dead {
+  transition: opacity 0.15s;
+  opacity: 0;
+}
+
+.rpg-level-banner {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.rpg-level-banner.show {
+  opacity: 1;
+}
+
+.rpg-end {
+  animation: dmg-float 2.5s ease-out forwards;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.sub-title {
+  font-size: 16px;
+  margin: 20px 0 10px;
+}
+
+.org-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.org-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.org-card:hover {
+  border-color: var(--accent);
+}
+
+.org-card img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.contribution-stats {
+  display: flex;
+  gap: 32px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.repo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.repo-card:hover {
+  border-color: var(--accent);
+}
+
+.repo-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.repo-desc {
+  font-size: 14px;
+  color: var(--muted);
+  flex: 1;
+}
+
+.repo-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.repo-meta .lang {
+  color: var(--green);
+}
+
+.footer {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.pill {
+  display: inline-block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .profile {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}

@@ -357,6 +357,7 @@ function renderRpg(contributions) {
 
     const wps = [];
     weeks.forEach((week, wi) => {
+      if (!week.some((cell) => cell && cell.count > 0)) return;
       const order = wi % 2 === 0 ? [...week.keys()] : [...week.keys()].reverse();
       for (const ri of order) {
         const cell = week[ri];
@@ -399,13 +400,18 @@ function renderRpg(contributions) {
         heroInner.setAttribute('transform', `scale(${dx < 0 ? -1 : 1},1)`);
       }
 
-      const steps = 4;
+      const dxStep = wp.x - prevX;
+      const dyStep = wp.y - prevY;
+      const dist = Math.hypot(dxStep, dyStep);
+      const empty = wp.count === 0;
+      const steps = empty ? Math.max(1, Math.round(dist / 7)) : 4;
+      const stepMs = empty ? 2 : 14;
       for (let s = 1; s <= steps; s++) {
         if (cancelled) break;
         fx = lerp(prevX, wp.x, s / steps);
         fy = lerp(prevY, wp.y, s / steps);
         hero.setAttribute('transform', `translate(${fx},${fy})`);
-        await sleep(14);
+        await sleep(stepMs);
       }
       hero.setAttribute('transform', `translate(${wp.x},${wp.y})`);
 

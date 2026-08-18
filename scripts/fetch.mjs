@@ -100,25 +100,38 @@ await Promise.all([
   }),
 
   task('contributions.json', async () => {
-    const raw = await fetchJson(`https://github-contributions-api.jogruber.de/v4/${USERNAME}`, {
-      headers: { 'User-Agent': 'edson-dev-profile-fetcher' },
-    });
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const cut = today.getTime() - 364 * 86400000;
-    const lastYear = (raw.contributions || [])
-      .map((c) => ({ date: c.date, count: c.count, level: c.level }))
-      .filter((c) => {
-        const t = new Date(c.date + 'T00:00:00').getTime();
-        return !Number.isNaN(t) && t >= cut && t <= today.getTime();
-      })
-      .sort((a, b) => a.date.localeCompare(b.date));
+    const existing = await readExisting('repos.json');
+    const createdYear = existing?.user?.created_at
+      ? new Date(existing.user.created_at).getFullYear()
+      : new Date().getFullYear();
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let y = createdYear; y <= currentYear; y++) years.push(y);
+
+    const results = await Promise.all(
+      years.map((y) =>
+        fetchJson(`https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=${y}`, {
+          headers: { 'User-Agent': 'edson-dev-profile-fetcher' },
+        }).catch(() => null),
+      ),
+    );
+
+    const all = [];
+    const total = {};
+    for (const r of results) {
+      if (!r) continue;
+      for (const c of r.contributions || []) {
+        all.push({ date: c.date, count: c.count, level: c.level });
+      }
+      Object.assign(total, r.total || {});
+    }
+    all.sort((a, b) => a.date.localeCompare(b.date));
     await save('contributions.json', {
       fetchedAt: new Date().toISOString(),
-      total: raw.total || {},
-      contributions: lastYear,
+      total,
+      contributions: all,
     });
-    console.log(`  (${lastYear.length} cells)`);
+    console.log(`  (${all.length} cells, ${years.length} years)`);
   }),
 
   task('orgs.json', async () => {

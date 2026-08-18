@@ -113,99 +113,63 @@ function renderRpg(contributions) {
   const GAP = 3;
   const PAD = 16;
   const ROWS = 7;
+  const LEVEL_COLORS = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'];
+  const CLEARED = '#22262e';
+  const level0 = LEVEL_COLORS[0];
+  const cellColor = (level) => LEVEL_COLORS[level] || level0;
+  const NS = 'http://www.w3.org/2000/svg';
 
   const cells = contributions.contributions
     .map((c) => ({ date: new Date(c.date + 'T00:00:00'), count: c.count, level: c.level }))
-    .filter((c) => !Number.isNaN(c.date.getTime()));
+    .filter((c) => !Number.isNaN(c.date.getTime()))
+    .sort((a, b) => a.date - b.date);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const yearAgo = new Date(today.getTime() - 364 * 86400000);
-
-  const lastYear = cells
-    .filter((c) => c.date >= yearAgo && c.date <= today)
-    .sort((a, b) => a.date - b.date);
+  const lastYear = cells.filter((c) => c.date >= yearAgo && c.date <= today);
 
   const totalLastYear = lastYear.reduce((s, c) => s + c.count, 0);
   const totals = contributions.total || {};
-  const totalAllTime = Object.values(totals).reduce((s, n) => s + (n || 0), 0);
+  const totalAllTime =
+    Object.values(totals).reduce((s, n) => s + (n || 0), 0) || cells.reduce((s, c) => s + c.count, 0);
 
   $('contribution-stats').innerHTML = `
     <div class="stat"><span class="stat-value">${totalLastYear.toLocaleString()}</span><span class="stat-label">contributions (1 year)</span></div>
     <div class="stat"><span class="stat-value">${totalAllTime.toLocaleString()}</span><span class="stat-label">contributions (all time)</span></div>
   `;
 
-  const weeks = [];
-  for (let i = 0; i < lastYear.length; i += ROWS) {
-    weeks.push(lastYear.slice(i, i + ROWS));
+  const byYear = [];
+  const yearMap = new Map();
+  for (const c of cells) {
+    const y = c.date.getFullYear();
+    if (!yearMap.has(y)) yearMap.set(y, []);
+    yearMap.get(y).push(c);
   }
+  for (const [year, yearCells] of yearMap) byYear.push({ year, yearCells });
 
-  const W = weeks.length * (CELL + GAP);
-  const H = ROWS * (CELL + GAP);
-
-  const LEVEL_COLORS = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'];
-  const CLEARED = '#22262e';
-  const level0 = LEVEL_COLORS[0];
-
-  const cellColor = (level) => LEVEL_COLORS[level] || level0;
-
-  const gridRects = [];
-  weeks.forEach((week, wi) => {
-    week.forEach((cell, ri) => {
-      if (!cell) return;
-      gridRects.push({
-        wi,
-        ri,
-        x: wi * (CELL + GAP) + PAD,
-        y: ri * (CELL + GAP) + PAD,
-        count: cell.count,
-        level: cell.level,
-      });
-    });
-  });
-
-  const waypoints = [];
-  weeks.forEach((week, wi) => {
-    const order = wi % 2 === 0 ? [...week.keys()] : [...week.keys()].reverse();
-    for (const ri of order) {
-      const cell = week[ri];
-      if (!cell) continue;
-      waypoints.push({
-        wi,
-        ri,
-        count: cell.count,
-        x: wi * (CELL + GAP) + PAD + CELL / 2,
-        y: ri * (CELL + GAP) + PAD + CELL / 2,
-      });
-    }
-  });
-
-  if (waypoints.length === 0) {
+  if (byYear.length === 0) {
     holder.innerHTML = '<p class="empty">No contribution squares to draw.</p>';
     return;
   }
 
-  const gridSvg = gridRects
-    .map(
-      (g) =>
-        `<rect id="cell-${g.wi}-${g.ri}" x="${g.x}" y="${g.y}" width="${CELL}" height="${CELL}" rx="2.5" fill="${cellColor(g.level)}" />`,
-    )
-    .join('');
+  const H = ROWS * (CELL + GAP);
 
   holder.innerHTML = `
     <div class="rpg-hud">
+      <div class="rpg-hud-item"><span id="rpg-year" class="rpg-hud-value"></span><span class="rpg-hud-label">YEAR</span></div>
       <div class="rpg-hud-item"><span id="rpg-score" class="rpg-hud-value">0</span><span class="rpg-hud-label">COMMITS</span></div>
       <div class="rpg-hud-item"><span id="rpg-kills" class="rpg-hud-value">0</span><span class="rpg-hud-label">DAYS</span></div>
       <div class="rpg-hud-item"><span id="rpg-level" class="rpg-hud-value">1</span><span class="rpg-hud-label">LEVEL</span></div>
       <button class="rpg-ctl" id="rpg-ctl" title="Speed — click to change">2x</button>
     </div>
     <div class="rpg-stage">
-      <svg id="rpg-svg" viewBox="0 0 ${W + PAD * 2} ${H + PAD * 2}" xmlns="http://www.w3.org/2000/svg" class="rpg-svg">
-        <rect id="rpg-bg" x="0" y="0" width="${W + PAD * 2}" height="${H + PAD * 2}" fill="transparent" />
-        ${gridSvg}
+      <svg id="rpg-svg" viewBox="0 0 ${PAD * 2} ${H + PAD * 2}" xmlns="http://www.w3.org/2000/svg" class="rpg-svg">
+        <rect id="rpg-bg" x="0" y="0" width="${PAD * 2}" height="${H + PAD * 2}" fill="transparent" />
+        <g id="rpg-grid"></g>
         <g id="rpg-monsters"></g>
         <g id="rpg-effects"></g>
-        <g id="rpg-hero" transform="translate(${waypoints[0].x},${waypoints[0].y})">
+        <g id="rpg-hero" transform="translate(${PAD},${PAD})">
           <g id="rpg-hero-inner">
             <circle r="${CELL * 0.62}" fill="#58a6ff" stroke="#1f6feb" stroke-width="1.5" />
             <path d="M -7 -2 A 7 7 0 0 1 7 -2 Z" fill="#0d1117" />
@@ -217,12 +181,14 @@ function renderRpg(contributions) {
             </g>
           </g>
         </g>
-        </svg>
+      </svg>
       <div class="rpg-level-banner" id="rpg-level-banner"></div>
     </div>
   `;
 
   const svg = document.getElementById('rpg-svg');
+  const bg = document.getElementById('rpg-bg');
+  const gridLayer = document.getElementById('rpg-grid');
   const hero = document.getElementById('rpg-hero');
   const heroInner = document.getElementById('rpg-hero-inner');
   const sword = document.getElementById('rpg-sword');
@@ -231,6 +197,7 @@ function renderRpg(contributions) {
   const scoreEl = document.getElementById('rpg-score');
   const killsEl = document.getElementById('rpg-kills');
   const levelEl = document.getElementById('rpg-level');
+  const yearEl = document.getElementById('rpg-year');
   const bannerEl = document.getElementById('rpg-level-banner');
   const ctlBtn = document.getElementById('rpg-ctl');
 
@@ -241,8 +208,17 @@ function renderRpg(contributions) {
   let score = 0;
   let kills = 0;
   let level = 1;
+  let stageW = PAD * 2;
 
   const levelFor = (s) => Math.floor(Math.sqrt(s / 8)) + 1;
+
+  let bannerTimer = null;
+  const showBanner = (text, ms) => {
+    bannerEl.textContent = text;
+    bannerEl.classList.add('show');
+    if (bannerTimer) clearTimeout(bannerTimer);
+    bannerTimer = setTimeout(() => bannerEl.classList.remove('show'), ms);
+  };
 
   ctlBtn.addEventListener('click', () => {
     if (started && !running) {
@@ -270,7 +246,7 @@ function renderRpg(contributions) {
 
   const cellEl = (wi, ri) => document.getElementById(`cell-${wi}-${ri}`);
 
-  const NS = 'http://www.w3.org/2000/svg';
+  let waypoints = [];
 
   function monster(count) {
     const maxColor = count >= 20 ? '#f85149' : count >= 8 ? '#bc4c00' : '#d29922';
@@ -337,9 +313,7 @@ function renderRpg(contributions) {
     const newLevel = levelFor(score);
     if (newLevel > level) {
       level = newLevel;
-      bannerEl.textContent = `LEVEL UP! → ${level}`;
-      bannerEl.classList.add('show');
-      setTimeout(() => bannerEl.classList.remove('show'), 1200 / speed);
+      showBanner(`LEVEL UP! → ${level}`, 1200 / speed);
     }
     scoreEl.textContent = score;
     killsEl.textContent = kills;
@@ -354,16 +328,69 @@ function renderRpg(contributions) {
     m.remove();
   }
 
-  async function animate() {
-    running = true;
-    cancelled = false;
+  function loadYear(yearCells, yearNum) {
+    const weeks = [];
+    for (let i = 0; i < yearCells.length; i += ROWS) {
+      weeks.push(yearCells.slice(i, i + ROWS));
+    }
+    const W = weeks.length * (CELL + GAP);
+    stageW = W;
 
-    let fx = waypoints[0].x;
-    let fy = waypoints[0].y;
+    gridLayer.innerHTML = '';
+    weeks.forEach((week, wi) => {
+      week.forEach((cell, ri) => {
+        if (!cell) return;
+        const rect = document.createElementNS(NS, 'rect');
+        rect.id = `cell-${wi}-${ri}`;
+        rect.setAttribute('x', wi * (CELL + GAP) + PAD);
+        rect.setAttribute('y', ri * (CELL + GAP) + PAD);
+        rect.setAttribute('width', CELL);
+        rect.setAttribute('height', CELL);
+        rect.setAttribute('rx', 2.5);
+        rect.setAttribute('fill', cellColor(cell.level));
+        gridLayer.appendChild(rect);
+      });
+    });
 
-    for (let i = 0; i < waypoints.length; i++) {
+    monstersLayer.innerHTML = '';
+    effectsLayer.innerHTML = '';
+
+    const wps = [];
+    weeks.forEach((week, wi) => {
+      const order = wi % 2 === 0 ? [...week.keys()] : [...week.keys()].reverse();
+      for (const ri of order) {
+        const cell = week[ri];
+        if (!cell) continue;
+        wps.push({
+          wi,
+          ri,
+          count: cell.count,
+          x: wi * (CELL + GAP) + PAD + CELL / 2,
+          y: ri * (CELL + GAP) + PAD + CELL / 2,
+        });
+      }
+    });
+
+    svg.setAttribute('viewBox', `0 0 ${W + PAD * 2} ${H + PAD * 2}`);
+    bg.setAttribute('width', W + PAD * 2);
+
+    waypoints = wps;
+    if (wps.length) {
+      hero.setAttribute('transform', `translate(${wps[0].x},${wps[0].y})`);
+      heroInner.setAttribute('transform', 'scale(1,1)');
+      sword.setAttribute('transform', 'rotate(-60 0 0)');
+    }
+    yearEl.textContent = yearNum;
+    return wps;
+  }
+
+  async function walkYear(wps) {
+    let fx = wps[0]?.x ?? 0;
+    let fy = wps[0]?.y ?? 0;
+
+    for (let i = 0; i < wps.length; i++) {
       if (cancelled) break;
-      const wp = waypoints[i];
+      const wp = wps[i];
       const prevX = fx;
       const prevY = fy;
       const dx = wp.x - prevX;
@@ -386,11 +413,32 @@ function renderRpg(contributions) {
         await attack(wp.wi, wp.ri, wp.count);
       }
     }
+  }
+
+  async function animate() {
+    running = true;
+    cancelled = false;
+
+    for (let yi = 0; yi < byYear.length; yi++) {
+      if (cancelled) break;
+      const { year, yearCells } = byYear[yi];
+      const wps = loadYear(yearCells, year);
+      if (wps.length === 0) continue;
+
+      showBanner(`YEAR ${year}`, 1500 / speed);
+      await walkYear(wps);
+      if (cancelled) break;
+
+      if (yi < byYear.length - 1) {
+        showBanner(`YEAR ${year} COMPLETE`, 900 / speed);
+        await sleep(900);
+      }
+    }
 
     if (!cancelled) {
-      const end = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      const end = document.createElementNS(NS, 'text');
       end.textContent = `Quest complete! ${score} damage dealt, ${kills} days conquered, level ${level}`;
-      end.setAttribute('x', W / 2 + PAD);
+      end.setAttribute('x', stageW / 2 + PAD);
       end.setAttribute('y', H / 2 + PAD);
       end.setAttribute('text-anchor', 'middle');
       end.setAttribute('fill', '#39d353');
@@ -406,6 +454,9 @@ function renderRpg(contributions) {
 
   let started = false;
   let paused = false;
+
+  yearEl.textContent = byYear[0].year;
+  loadYear(byYear[0].yearCells, byYear[0].year);
 
   const startAnim = () => {
     if (started) return;

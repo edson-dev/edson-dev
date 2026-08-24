@@ -171,13 +171,26 @@ function renderRpg(contributions) {
         <g id="rpg-effects"></g>
         <g id="rpg-hero" transform="translate(${PAD},${PAD})">
           <g id="rpg-hero-inner">
-            <circle r="${CELL * 0.62}" fill="#58a6ff" stroke="#1f6feb" stroke-width="1.5" />
-            <path d="M -7 -2 A 7 7 0 0 1 7 -2 Z" fill="#0d1117" />
-            <circle cx="-2.6" cy="-3" r="1.2" fill="#0d1117" />
-            <circle cx="0.6" cy="-3" r="1.2" fill="#0d1117" />
-            <g id="rpg-sword" transform="rotate(-60 0 0)">
-              <rect x="${CELL * 0.62 - 1.5}" y="${-CELL * 0.62 - 2}" width="2.6" height="${CELL * 0.62 + 6}" fill="#c9d1d9" />
-              <path d="M ${CELL * 0.62 - 0.2} ${-CELL * 0.62 - 2} L ${CELL * 0.62 + 5} ${-CELL * 0.62 - 7} L ${CELL * 0.62 - 0.2} ${-CELL * 0.62 - 5} Z" fill="#e3b341" />
+            <g id="ninja-tails">
+              <path d="M-3.6,-7.4 C-6.2,-6.2 -7.8,-6.6 -9.6,-5.8" stroke="#58a6ff" stroke-width="1.1" fill="none" stroke-linecap="round" />
+              <path d="M-3.6,-7.4 C-5.6,-8.8 -7.4,-8.5 -9.2,-9" stroke="#58a6ff" stroke-width="0.9" fill="none" stroke-linecap="round" />
+            </g>
+            <circle cx="0" cy="-5.6" r="3.9" fill="#141926" stroke="#0b0e14" stroke-width="1" />
+            <path d="M-3.8,-7.2 Q0,-8.4 3.8,-7.2" stroke="#58a6ff" stroke-width="1.4" fill="none" stroke-linecap="round" />
+            <path d="M-3.8,-4.5 Q0,-3.2 3.8,-4.5 L3.8,-3 Q0,-2 -3.8,-3 Z" fill="#1c2536" />
+            <rect x="-2.8" y="-6.3" width="1.5" height="1" rx="0.45" fill="#58a6ff" />
+            <rect x="1.3" y="-6.3" width="1.5" height="1" rx="0.45" fill="#58a6ff" />
+            <path d="M-3,-1 Q-3.5,1 -3,3.2 L-3.6,6.2 Q0,7.4 3.6,6.2 L3,3.2 Q3.5,1 3,-1 Q0,-2.1 -3,-1 Z" fill="#0e1220" />
+            <path d="M-2.2,-0.4 Q0,-1.3 2.2,-0.4" stroke="#58a6ff" stroke-width="0.7" fill="none" />
+            <rect x="-3.1" y="2.4" width="6.2" height="1" rx="0.4" fill="#58a6ff" />
+            <rect x="-2.8" y="6.5" width="2.1" height="1" rx="0.5" fill="#0a0d13" />
+            <rect x="0.7" y="6.5" width="2.1" height="1" rx="0.5" fill="#0a0d13" />
+            <path d="M3,-1.4 L4.7,-2.6" stroke="#141926" stroke-width="1.4" stroke-linecap="round" />
+            <g id="rpg-sword" transform="rotate(-14 0 0)">
+              <path d="M4.9,-9.2 L4.9,-10.4" stroke="#58a6ff" stroke-width="1" stroke-linecap="round" />
+              <rect x="4.6" y="-8.9" width="1" height="5.6" rx="0.5" fill="#58a6ff" />
+              <rect x="4.5" y="-3.6" width="1.4" height="0.9" rx="0.3" fill="#e3b341" />
+              <rect x="4.4" y="-2.9" width="1.6" height="2.3" rx="0.5" fill="#232a38" />
             </g>
           </g>
         </g>
@@ -388,6 +401,7 @@ function renderRpg(contributions) {
   async function walkYear(wps) {
     let fx = wps[0]?.x ?? 0;
     let fy = wps[0]?.y ?? 0;
+    let dir = 1;
 
     for (let i = 0; i < wps.length; i++) {
       if (cancelled) break;
@@ -397,7 +411,7 @@ function renderRpg(contributions) {
       const dx = wp.x - prevX;
 
       if (dx !== 0) {
-        heroInner.setAttribute('transform', `scale(${dx < 0 ? -1 : 1},1)`);
+        dir = dx < 0 ? -1 : 1;
       }
 
       const dxStep = wp.x - prevX;
@@ -411,6 +425,7 @@ function renderRpg(contributions) {
         fx = lerp(prevX, wp.x, s / steps);
         fy = lerp(prevY, wp.y, s / steps);
         hero.setAttribute('transform', `translate(${fx},${fy})`);
+        heroInner.setAttribute('transform', `scale(${dir},1) translate(0,${s % 2 ? 0.6 : 0})`);
         await sleep(stepMs);
       }
       hero.setAttribute('transform', `translate(${wp.x},${wp.y})`);
